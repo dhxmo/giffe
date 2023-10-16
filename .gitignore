@@ -3,3 +3,4 @@ venv/
 .ipynb-checkpoints/
 .idea/
 .vs-code/
+outputs/
