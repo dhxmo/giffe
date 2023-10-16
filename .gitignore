@@ -1,0 +1,5 @@
+venv/
+.env
+.ipynb-checkpoints/
+.idea/
+.vs-code/
