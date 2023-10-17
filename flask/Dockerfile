@@ -1,23 +1,23 @@
-# Use an official Python runtime as a parent image
-FROM python:3.8-slim
+#FROM ubuntu:latest
+LABEL authors="dhruv"
+
+ENTRYPOINT ["top", "-b"]
+
+# Use the official Python image as the base image
+FROM python:3.8.10
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements file into the container
+# Copy the requirements.txt file into the container
 COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
+# Install the Python dependencies
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy the entire Flask project into the container
+COPY . .
 
-# Expose port 5000
-EXPOSE 5000
-
-# Define environment variable
-ENV FLASK_APP=run.py
-
-# Run the Flask application
-CMD ["flask", "run", "--host=0.0.0.0"]
+# Command to run Flask application with Gunicorn
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "--access-logfile", "-", "--error-logfile", "-", "run:app"]
