@@ -4,3 +4,4 @@ venv/
 .idea/
 .vs-code/
 outputs/
+__pycache__/
