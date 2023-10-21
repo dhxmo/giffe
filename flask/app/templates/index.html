@@ -39,9 +39,20 @@
         <div id="imageContainer">
             <img id="uploadedImage" alt="Uploaded Image">
         </div>
-        <div id="embedCodeContainer">
-            <pre><code id="embedCode"></code></pre>
+        <div id="embedContainer">
+            <div style="display: flex !important; align-items: center; justify-content: space-around;">
+                 <div id="embedCodeContainer">
+                    <pre><code id="embedCode"></code></pre>
+                </div>
+                <img id="copyToClipboard"
+                     src="{{ url_for('static', filename='assets/copy.png') }}"
+                     width="30"
+                     height="30"
+                     alt="copy to clipboard"/>
+                <span id="copyToClipboardSpan" style="display: none; margin-left: 5px;">Copied!</span>
+            </div>
         </div>
+
     </div>
 
      <div class="css-bottom-stream"></div>

@@ -70,16 +70,12 @@ async def giffer(url):
             # Define the number of frames to scroll down and then back up
             num_frames = 30  # Adjust this number for the desired smoothness
 
-            # Define a flag to track if the close button was clicked
-            close_button_clicked = False
-
             # Scroll smoothly from top to 400 pixels down
             for i in range(num_frames):
-                await check_and_click_close_button_twitter(page, url)
-                # if 'twitter.com' in url:
-                #     await check_and_click_close_button_twitter(page, url)
-                # elif 'instagram.com' in url:
-                #     await check_and_click_close_button_insta(page, url)
+                if 'twitter.com' in url or 'instagram.com' in url:
+                    close_button_clicked = await check_and_click_close_button(page, url)
+                else:
+                    close_button_clicked = False
 
                 scroll_position = (i * scroll_down_pixels) // num_frames
                 await page.add_style_tag(content='body::-webkit-scrollbar { width: 0 !important; }')
@@ -93,12 +89,12 @@ async def giffer(url):
                     frame = cv2.imdecode(frame, 1)
                     out.write(frame)
 
-            # Reset the flag after scrolling down
-            close_button_clicked = False
-
             # Scroll smoothly from 400 pixels back to the top
             for i in range(num_frames):
-                await check_and_click_close_button_twitter(page, url)
+                if 'twitter.com' in url or 'instagram.com' in url:
+                    close_button_clicked = await check_and_click_close_button(page, url)
+                else:
+                    close_button_clicked = False
 
                 scroll_position = scroll_down_pixels - (i * scroll_down_pixels) // num_frames
                 await page.add_style_tag(content='body::-webkit-scrollbar { width: 0 !important; }')
@@ -191,28 +187,15 @@ def get_share_button(url):
 
 
 # Define a function to check if the close button is present and click it
-async def check_and_click_close_button_twitter(page, url):
+async def check_and_click_close_button(page, url):
     if await page.query_selector('[aria-label="Close"]'):
         try:
             # Find and click the element with aria-label "Close" if it exists
             await page.click('[aria-label="Close"]')
             # Set the flag to True when the close button is clicked
-            close_button_clicked = True
+            return True
         except Exception as e:
-            print(f"Error clicking the close button: {e}")
-
-
-# Define a function to check if the close button is present and click it
-async def check_and_click_close_button_insta(page, url):
-    if await page.query_selector('[aria-label="Close"]'):
-        try:
-            # Find and click the element with aria-label "Close" if it exists
-            await page.click('[aria-label="Close"]')
-            # Set the flag to True when the close button is clicked
-            close_button_clicked = True
-        except Exception as e:
-            print(f"Error clicking the close button: {e}")
-
+            print(f"Error clicking the close button for url {url}: {e}")
 
 async def random_delay():
     min_delay = 3  # Minimum delay in seconds
