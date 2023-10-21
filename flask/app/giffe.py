@@ -68,7 +68,7 @@ async def giffer(url):
             out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
 
             # Define the number of frames to scroll down and then back up
-            num_frames = 30  # Adjust this number for the desired smoothness
+            num_frames = 50  # Adjust this number for the desired smoothness
 
             # Scroll smoothly from top to 400 pixels down
             for i in range(num_frames):

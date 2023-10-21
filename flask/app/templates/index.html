@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>giffe</title>
+    <title>embed.li</title>
     <meta
       name="description"
-      content="Discover research gaps and find contextual citations for your specific field or research question."
+      content="Embed your socials, with style"
     />
     <meta
       name="keywords"
-      content="research, gaps, questions, research gaps, research questions"
+      content="embed"
     />
     <meta name="robots" content="noindex" />
     <meta http-equiv="cache-control" content="no-store" />
@@ -21,12 +21,19 @@
       href="{{ url_for('static', filename='css/main.css') }}"
     />
 
+    <link rel="icon"
+          href="{{ url_for('static', filename='assets/favicon.ico') }}"
+          type="image/x-icon">
 </head>
 <body>
     <div class="css-top-stream"></div>
 
+    <div class="headingContainer">
+        <h2>Embed your socials, with style</h2>
+    </div>
+
     <div class="container">
-        <h1>giffe</h1>
+        <h3 class="site-title">embed.li</h3>
         <div class="form-group">
             <input type="text" id="urlInput" placeholder="Enter URL">
         </div>
