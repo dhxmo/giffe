@@ -26,6 +26,8 @@ async def giffer(url):
         scroll_down_pixels = 500
     elif 'instagram.com' in url:
         scroll_down_pixels = 600
+    elif 'youtube.com' in url:
+        scroll_down_pixels = 700
 
     # Define the output video file path
     unique_id = str(uuid.uuid4())
@@ -73,10 +75,11 @@ async def giffer(url):
 
             # Scroll smoothly from top to 400 pixels down
             for i in range(num_frames):
-                if 'twitter.com' in url:
-                    await check_and_click_close_button_twitter(page, url)
-                elif 'instagram.com' in url:
-                    await check_and_click_close_button_insta(page, url)
+                await check_and_click_close_button_twitter(page, url)
+                # if 'twitter.com' in url:
+                #     await check_and_click_close_button_twitter(page, url)
+                # elif 'instagram.com' in url:
+                #     await check_and_click_close_button_insta(page, url)
 
                 scroll_position = (i * scroll_down_pixels) // num_frames
                 await page.add_style_tag(content='body::-webkit-scrollbar { width: 0 !important; }')
@@ -95,10 +98,7 @@ async def giffer(url):
 
             # Scroll smoothly from 400 pixels back to the top
             for i in range(num_frames):
-                if 'twitter.com' in url:
-                    await check_and_click_close_button_twitter(page, url)
-                elif 'instagram.com' in url:
-                    await check_and_click_close_button_insta(page, url)
+                await check_and_click_close_button_twitter(page, url)
 
                 scroll_position = scroll_down_pixels - (i * scroll_down_pixels) // num_frames
                 await page.add_style_tag(content='body::-webkit-scrollbar { width: 0 !important; }')
@@ -123,6 +123,8 @@ async def giffer(url):
             video_clip = video_clip.fl_image(twitter_crop_frame)
         elif 'instagram.com' in url:
             video_clip = video_clip.fl_image(instagram_crop_frame)
+        elif 'youtube.com' in url:
+            video_clip = video_clip.fl_image(youtube_crop_frame)
 
         video_clip.write_gif(output_gif_path, opt='wu')
 
@@ -142,7 +144,9 @@ async def giffer(url):
         if os.path.exists(output_gif_path):
             os.remove(output_gif_path)
 
-        embed_code = f'''<div id="image-container" style="display: inline-block; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); width:"><img id="image" alt="GIF" /><div style="position: absolute; top: 10px; right: 10px; background: white; padding: 5px; border-radius: 50%; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2;"><button onclick="window.open('{url}', '_blank');">Share</button></div></div><script>var img = document.getElementById('image');img.src = '{s3_url}';</script>'''
+        share_btn_url = get_share_button(url)
+
+        embed_code = f'''<div style="text-align: center; position: relative;"><img src={s3_url} alt="GIF" style="width: 400px; height: 400px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);" /> <a href={url} target="_blank"> <img src={share_btn_url} alt="Share" style="position: absolute; width: 100px; height: 100px; top: 50%; left: 50%; transform: translate(-50%, -50%);" /> </a> </div>'''
 
         return {
             "s3_url": s3_url,
@@ -162,6 +166,28 @@ def twitter_crop_frame(frame):
 
 def instagram_crop_frame(frame):
     return frame[60:, :]
+
+
+def youtube_crop_frame(frame):
+    return frame[60:, :]
+
+
+def get_share_button(url):
+    share_button_map = {
+        "twitter.com": "https://giffe.s3.ap-south-1.amazonaws.com/share_buttons/twiiter.svg",
+        "instagram.com": "https://giffe.s3.ap-south-1.amazonaws.com/share_buttons/instagram.svg",
+        "youtube.com": "https://giffe.s3.ap-south-1.amazonaws.com/share_buttons/youtube.svg",
+        "misc": "https://giffe.s3.ap-south-1.amazonaws.com/share_buttons/misc_share.svg"
+    }
+
+    if 'twitter.com' in url:
+        return share_button_map["twitter.com"]
+    elif 'instagram.com' in url:
+        return share_button_map["instagram.com"]
+    elif 'youtube.com' in url:
+        return share_button_map["youtube.com"]
+    else:
+        return share_button_map["misc"]
 
 
 # Define a function to check if the close button is present and click it
