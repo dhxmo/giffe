@@ -13,11 +13,16 @@ const embedCode = document.getElementById("embedCode");
 const copyToClipboard = document.getElementById('copyToClipboard');
 const copyToClipboardSpan = document.getElementById('copyToClipboardSpan');
 
+const notification = document.getElementById("notification");
+const notificationText = document.getElementById("notification-text");
 
 submitButton.addEventListener("click", async () => {
     showLoader();
     const url = urlInput.value;
 
+    // reset clipboard
+    copyToClipboard.style.display = 'inline';
+    copyToClipboardSpan.style.display = 'none';
 
     // Check if the URL is valid
     if (isValidUrl(url)) {
@@ -31,12 +36,14 @@ submitButton.addEventListener("click", async () => {
 
             showEmbedContainer();
         } else {
+            // If there's an error, show a custom notification
+            showNotification("Error: Unable to fetch data from the server");
             // If there's an error, hide the loader (spinner)
             loader.style.display = "none";
         }
     } else {
-        // Show an alert for an invalid URL
-        window.alert("Please enter a valid URL.");
+         // Show a custom notification for an invalid URL
+        showNotification("Please enter a valid URL");
         loader.style.display = "none";
     }
 });
@@ -69,4 +76,15 @@ function isValidUrl(inputUrl) {
         console.log("returning false")
         return false;
     }
+}
+
+// Function to show the custom notification
+function showNotification(message) {
+    notificationText.innerText = message;
+    notification.classList.add("show");
+
+    // Automatically hide the notification after a few seconds (adjust as needed)
+    setTimeout(() => {
+        notification.classList.remove("show");
+    }, 3000); // Hide after 5 seconds
 }
