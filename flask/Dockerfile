@@ -20,4 +20,4 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Command to run Flask application with Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "--access-logfile", "-", "--error-logfile", "-", "run:app"]
+CMD ["hypercorn", "-b", "0.0.0.0:5000", "--access-logfile", "-", "--error-logfile", "-", "run:app"]
