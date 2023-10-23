@@ -1,5 +1,5 @@
 # Use the official Python image as the base image
-FROM python:3.8.10
+FROM python:3.8.10 as base
 
 # Set the working directory in the container
 WORKDIR /app
@@ -15,8 +15,17 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 RUN playwright install
 
+# Intermediate image with just the installed dependencies
+FROM base as intermediate
+
 # Copy the entire Flask project into the container
 COPY . .
+
+# Final image with the application code
+FROM base
+
+# Copy the application code from the intermediate image
+COPY --from=intermediate /app /app
 
 # Command to run Flask application with Hypercorn
 CMD ["hypercorn", "-b", "0.0.0.0:5000", "--access-logfile", "-", "--error-logfile", "-", "run:app"]
