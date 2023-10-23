@@ -1,4 +1,3 @@
-from flask import Flask
 from quart import Quart
 
 app = Quart(__name__, template_folder="templates")
