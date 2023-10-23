@@ -32,7 +32,7 @@ MarkupSafe
 moviepy
 multidict
 numpy
-opencv-python.78
+opencv-python
 outcome
 packaging
 playwright
