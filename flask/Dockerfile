@@ -8,6 +8,8 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install the Python dependencies
+RUN apt-get update && apt-get install -y libsm6 libxext6 ffmpeg libfontconfig1 libxrender1 libgl1-mesa-glx libglib2.0-0 libgl1
+RUN apt-get update && apt-get install -y python3-opencv
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
