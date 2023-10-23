@@ -1,20 +1,16 @@
 from datetime import timedelta
 
 from quart import request, render_template, send_from_directory, make_response
-from quart_rate_limiter import RateLimiter, rate_limit
+from quart_rate_limiter import rate_limit
 
 from . import app
 from .giffe import giffer
 from .utils import sanitize_html
 
-rate_limiter = RateLimiter()
-
 
 @app.route('/')
 @rate_limit(1, timedelta(seconds=3))
 async def index():
-    # response = await render_template('index.html')
-
     content = await render_template('index.html')
     response = await make_response(content)
     response.headers[
@@ -27,9 +23,7 @@ async def index():
 @rate_limit(1, timedelta(seconds=3))
 async def generate_gif():
     url = request.args.get('url')
-
     sanitized_url = sanitize_html(url)
-
     result = await giffer(sanitized_url)
     return result
 

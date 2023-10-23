@@ -1,12 +1,12 @@
 from quart import Quart
+from quart_rate_limiter import RateLimiter
 
-from .views import rate_limiter
 
 app = Quart(__name__, template_folder="templates")
+RateLimiter(app)
 
 from . import views
 
-rate_limiter.init_app(app)
 
 if __name__ == '__main__':
     app.run(debug=True)
