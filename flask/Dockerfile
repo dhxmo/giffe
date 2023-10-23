@@ -13,6 +13,7 @@ COPY requirements.txt .
 # Install Python dependencies and OpenCV
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+RUN playwright install
 
 # Copy the entire Flask project into the container
 COPY . .
