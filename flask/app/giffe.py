@@ -1,7 +1,8 @@
 import asyncio
 import os
-import uuid
 import random
+import uuid
+
 import boto3
 import cv2
 import numpy as np
@@ -10,7 +11,6 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 from playwright.async_api import async_playwright
 
 from .config import Config
-from .utils import logging
 
 s3 = boto3.client('s3',
                   aws_access_key_id=Config.s3_giffe_access_key,
@@ -47,8 +47,6 @@ async def giffer(url):
                                               '--allow-running-insecure-content',  # Allow running insecure content
                                               '--disable-infobars'
                                           ])
-        logging.info("browser:: %s", browser)
-
         agent_list = [
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
             "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:24.0) Gecko/20100101 Firefox/24.0",
@@ -66,16 +64,15 @@ async def giffer(url):
             user_agent=user_agent,
             extra_http_headers={'Accept-Language': 'en-US,en;q=0.9'}
         )
-        logging.info("context::: %s", context)
-
         page = await context.new_page()
-        logging.info("page:: %s", page)
+        await page.set_viewport_size({'width': width, 'height': height})
+
+        if 'instagram.com' in url:
+            page = await sign_in_to_instagram(page)
+
+        await page.goto(url)
 
         try:
-            await page.set_viewport_size({'width': width, 'height': height})
-            res = await page.goto(url)
-            logging.info("res:: %s", res)
-
             # Add random delays between actions
             await random_delay()
 
@@ -136,8 +133,8 @@ async def giffer(url):
 
         if 'twitter.com' in url:
             video_clip = video_clip.fl_image(twitter_crop_frame)
-        elif 'instagram.com' in url:
-            video_clip = video_clip.fl_image(instagram_crop_frame)
+        # elif 'instagram.com' in url:
+        #     video_clip = video_clip.fl_image(instagram_crop_frame)
         elif 'youtube.com' in url:
             video_clip = video_clip.fl_image(youtube_crop_frame)
 
@@ -216,8 +213,38 @@ async def check_and_click_close_button(page, url):
         except Exception as e:
             print(f"Error clicking the close button for url {url}: {e}")
 
+
 async def random_delay():
     min_delay = 3  # Minimum delay in seconds
     max_delay = 5  # Maximum delay in seconds
     delay = random.uniform(min_delay, max_delay)
     await asyncio.sleep(delay)
+
+
+async def sign_in_to_instagram(page):
+    # Replace these placeholders with your actual Instagram username and password
+    instagram_username = Config.insta_username
+    instagram_password = Config.insta_password
+
+    # Navigate to the Instagram login page
+    await page.goto('https://www.instagram.com/accounts/login/')
+
+    await random_delay()
+
+    # Wait for the username input field to appear and type your username
+    await page.wait_for_selector('input[name="username"]')
+    await page.type('input[name="username"]', instagram_username)
+
+    # Wait for the password input field to appear and type your password
+    await page.wait_for_selector('input[name="password"]')
+    await page.type('input[name="password"]', instagram_password)
+
+    # Click the "Log In" button to submit the form
+    await page.click('button[type="submit"]')
+
+    await random_delay()
+
+    # capture the storage state (cookies) after logging in
+    await page.context.storage_state()
+
+    return page
