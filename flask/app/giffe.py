@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import uuid
 import random
@@ -47,15 +48,32 @@ async def giffer(url):
                                               '--disable-infobars'
                                           ])
 
+        AGENT_LIST = [
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
+            "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:24.0) Gecko/20100101 Firefox/24.0",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/91.0.4472.114 "
+            "Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 "
+            "Safari/605.1.15",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 "
+            "Safari/537.36"
+        ]
+        USER_AGENT = random.choice(AGENT_LIST)
+
         context = await browser.new_context(
-            user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36',
+            user_agent=USER_AGENT,
             extra_http_headers={'Accept-Language': 'en-US,en;q=0.9'}
         )
+        logging.info("context::: %s", context)
+
         page = await context.new_page()
+        logging.info("page:: %s", page)
 
         try:
             await page.set_viewport_size({'width': width, 'height': height})
-            await page.goto(url)
+            res = await page.goto(url)
+            logging.info("res:: %s", res)
 
             # Add random delays between actions
             await random_delay()
