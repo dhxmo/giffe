@@ -96,11 +96,6 @@ async def giffer(url):
             login_url = 'https://www.instagram.com/accounts/login/'
             page = await sign_in_to_instagram(page, login_url)
 
-            # Set the Referer header to match the previous page
-            referrer = request.headers.get('Referer')
-            if referrer:
-                await page.set_extra_http_headers({'Referer': referrer})
-
         logging.info("final session:: %s", await page.context.storage_state())
 
         res = await page.goto(url)
