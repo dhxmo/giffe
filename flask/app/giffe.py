@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import os
 import uuid
 import random
@@ -11,6 +10,7 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 from playwright.async_api import async_playwright
 
 from .config import Config
+from .utils import logging
 
 s3 = boto3.client('s3',
                   aws_access_key_id=Config.s3_giffe_access_key,
@@ -47,7 +47,7 @@ async def giffer(url):
                                               '--allow-running-insecure-content',  # Allow running insecure content
                                               '--disable-infobars'
                                           ])
-        logging.debug("browser:: %s", browser)
+        logging.info("browser:: %s", browser)
 
         agent_list = [
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
@@ -66,15 +66,15 @@ async def giffer(url):
             user_agent=user_agent,
             extra_http_headers={'Accept-Language': 'en-US,en;q=0.9'}
         )
-        logging.debug("context::: %s", context)
+        logging.info("context::: %s", context)
 
         page = await context.new_page()
-        logging.debug("page:: %s", page)
+        logging.info("page:: %s", page)
 
         try:
             await page.set_viewport_size({'width': width, 'height': height})
             res = await page.goto(url)
-            logging.debug("res:: %s", res)
+            logging.info("res:: %s", res)
 
             # Add random delays between actions
             await random_delay()
