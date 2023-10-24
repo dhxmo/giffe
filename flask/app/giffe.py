@@ -73,9 +73,12 @@ async def giffer(url):
             page = await sign_in_to_instagram(page, login_url)
 
         logging.info("final session:: %s", await page.context.storage_state())
-        await page.context.storage_state()
+        await page.route(url, lambda route, request: route.abort())
+
         res = await page.goto(url)
         logging.info("res:: %s", res)
+
+        await simulate_random_mouse_movements(page)
 
         try:
             # Add random delays between actions
@@ -98,6 +101,7 @@ async def giffer(url):
                 else:
                     close_button_clicked = False
 
+                await simulate_random_mouse_movements(page)
                 scroll_position = (i * scroll_down_pixels) // num_frames
                 await page.add_style_tag(content='body::-webkit-scrollbar { width: 0 !important; }')
                 await page.evaluate(f'window.scrollTo(0, {scroll_position})')
@@ -117,6 +121,7 @@ async def giffer(url):
                 else:
                     close_button_clicked = False
 
+                await simulate_random_mouse_movements(page)
                 scroll_position = scroll_down_pixels - (i * scroll_down_pixels) // num_frames
                 await page.add_style_tag(content='body::-webkit-scrollbar { width: 0 !important; }')
                 await page.evaluate(f'window.scrollTo(0, {scroll_position})')
@@ -220,7 +225,7 @@ async def check_and_click_close_button(page, url):
 
 
 async def random_delay():
-    min_delay = 3  # Minimum delay in seconds
+    min_delay = 1  # Minimum delay in seconds
     max_delay = 5  # Maximum delay in seconds
     delay = random.uniform(min_delay, max_delay)
     await asyncio.sleep(delay)
@@ -234,18 +239,24 @@ async def sign_in_to_instagram(page, url):
 
     logging.info("initial session:: %s", await page.context.storage_state())
 
+    await simulate_random_mouse_movements(page)
+
     # Navigate to the Instagram login page
     await page.goto('https://www.instagram.com/accounts/login/')
 
-    await random_delay()
+    await simulate_random_mouse_movements(page)
 
     # Wait for the username input field to appear and type your username
     await page.wait_for_selector('input[name="username"]')
     await page.type('input[name="username"]', instagram_username)
 
+    await simulate_random_mouse_movements(page)
+
     # Wait for the password input field to appear and type your password
     await page.wait_for_selector('input[name="password"]')
     await page.type('input[name="password"]', instagram_password)
+
+    await simulate_random_mouse_movements(page)
 
     # Click the "Log In" button to submit the form
     await page.click('button[type="submit"]')
@@ -256,3 +267,24 @@ async def sign_in_to_instagram(page, url):
     await page.context.storage_state()
 
     return page
+
+
+async def simulate_random_mouse_movements(page):
+    # Define the range for random x and y coordinates
+    x_min, x_max = 100, 500
+    y_min, y_max = 100, 500
+
+    # Generate random x and y coordinates within the defined range
+    x_coordinate = random.randint(x_min, x_max)
+    y_coordinate = random.randint(y_min, y_max)
+
+    # Move the mouse cursor to the random coordinates
+    await page.mouse.move(x_coordinate, y_coordinate)
+
+    # You can add delays and perform additional random movements
+    await page.waitForTimeout(random.randint(1000, 3000))  # Random wait time between 1 to 3 seconds
+
+    # Move the mouse to another random position
+    x_coordinate = random.randint(x_min, x_max)
+    y_coordinate = random.randint(y_min, y_max)
+    await page.mouse.move(x_coordinate, y_coordinate)
