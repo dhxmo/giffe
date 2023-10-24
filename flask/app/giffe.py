@@ -2,10 +2,13 @@ import asyncio
 import os
 import random
 import uuid
+from lxml.html import fromstring
+from itertools import cycle
 
 import boto3
 import cv2
 import numpy as np
+import requests
 from botocore.exceptions import NoCredentialsError
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from playwright.async_api import async_playwright
@@ -17,6 +20,22 @@ from .utils import logging
 s3 = boto3.client('s3',
                   aws_access_key_id=Config.s3_giffe_access_key,
                   aws_secret_access_key=Config.s3_secret_access_key)
+
+
+def get_proxies():
+    url = 'https://free-proxy-list.net/'
+    response = requests.get(url)
+    parser = fromstring(response.text)
+    proxies = set()
+    for i in parser.xpath('//tbody/tr')[:10]:
+        if i.xpath('.//td[7][contains(text(),"yes")]'):
+            proxy = ":".join([i.xpath('.//td[1]/text()')[0], i.xpath('.//td[2]/text()')[0]])
+            proxies.add(proxy)
+    return proxies
+
+
+proxies = get_proxies()
+proxy_pool = cycle(proxies)
 
 
 async def giffer(url):
@@ -62,10 +81,14 @@ async def giffer(url):
         ]
         user_agent = random.choice(agent_list)
 
+        proxy = next(proxy_pool)
+
         context = await browser.new_context(
             user_agent=user_agent,
-            extra_http_headers={'Accept-Language': 'en-US,en;q=0.9'}
+            extra_http_headers={'Accept-Language': 'en-US,en;q=0.9'},
+            proxy={"server": proxy}
         )
+
         page = await context.new_page()
         await page.set_viewport_size({'width': width, 'height': height})
 
@@ -106,7 +129,6 @@ async def giffer(url):
                 else:
                     close_button_clicked = False
 
-                await simulate_random_mouse_movements(page)
                 scroll_position = (i * scroll_down_pixels) // num_frames
                 await page.add_style_tag(content='body::-webkit-scrollbar { width: 0 !important; }')
                 await page.evaluate(f'window.scrollTo(0, {scroll_position})')
@@ -126,7 +148,6 @@ async def giffer(url):
                 else:
                     close_button_clicked = False
 
-                await simulate_random_mouse_movements(page)
                 scroll_position = scroll_down_pixels - (i * scroll_down_pixels) // num_frames
                 await page.add_style_tag(content='body::-webkit-scrollbar { width: 0 !important; }')
                 await page.evaluate(f'window.scrollTo(0, {scroll_position})')
