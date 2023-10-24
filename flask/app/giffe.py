@@ -11,6 +11,7 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 from playwright.async_api import async_playwright
 
 from .config import Config
+from .utils import logging
 
 s3 = boto3.client('s3',
                   aws_access_key_id=Config.s3_giffe_access_key,
@@ -71,7 +72,9 @@ async def giffer(url):
             login_url = 'https://www.instagram.com/accounts/login/'
             page = await sign_in_to_instagram(page, login_url)
 
-        await page.goto(url)
+        logging.info("final session", page.context)
+        res = await page.goto(url)
+        logging.info("res:: %s", res)
 
         try:
             # Add random delays between actions
@@ -134,8 +137,8 @@ async def giffer(url):
 
         if 'twitter.com' in url:
             video_clip = video_clip.fl_image(twitter_crop_frame)
-        # elif 'instagram.com' in url:
-        #     video_clip = video_clip.fl_image(instagram_crop_frame)
+        elif 'instagram.com' in url:
+            video_clip = video_clip.fl_image(instagram_crop_frame)
         elif 'youtube.com' in url:
             video_clip = video_clip.fl_image(youtube_crop_frame)
 
@@ -227,6 +230,8 @@ async def sign_in_to_instagram(page, url):
     # Replace these placeholders with your actual Instagram username and password
     instagram_username = Config.insta_username
     instagram_password = Config.insta_password
+
+    logging.info("initial session", page.context)
 
     # Navigate to the Instagram login page
     await page.goto('https://www.instagram.com/accounts/login/')
