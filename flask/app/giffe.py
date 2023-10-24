@@ -72,7 +72,7 @@ async def giffer(url):
             login_url = 'https://www.instagram.com/accounts/login/'
             page = await sign_in_to_instagram(page, login_url)
 
-        logging.info("final session", page.context.storage_state())
+        logging.info("final session:: %s", await page.context.storage_state())
         await page.context.storage_state()
         res = await page.goto(url)
         logging.info("res:: %s", res)
@@ -232,7 +232,7 @@ async def sign_in_to_instagram(page, url):
     instagram_username = Config.insta_username
     instagram_password = Config.insta_password
 
-    logging.info("initial session", page.context.storage_state())
+    logging.info("initial session:: %s", await page.context.storage_state())
 
     # Navigate to the Instagram login page
     await page.goto('https://www.instagram.com/accounts/login/')
