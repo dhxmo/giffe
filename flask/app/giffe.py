@@ -38,7 +38,7 @@ async def giffer(url):
 
     # capture video and create gif
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False,
+        browser = await p.chromium.launch(headless=True,
                                           args=[
                                               '--no-sandbox',
                                               '--disable-extensions',
