@@ -282,7 +282,7 @@ async def simulate_random_mouse_movements(page):
     await page.mouse.move(x_coordinate, y_coordinate)
 
     # You can add delays and perform additional random movements
-    await page.waitForTimeout(random.randint(1000, 3000))  # Random wait time between 1 to 3 seconds
+    await random_delay()
 
     # Move the mouse to another random position
     x_coordinate = random.randint(x_min, x_max)
