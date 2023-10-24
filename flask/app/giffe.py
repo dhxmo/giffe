@@ -9,6 +9,7 @@ import numpy as np
 from botocore.exceptions import NoCredentialsError
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from playwright.async_api import async_playwright
+from quart import request
 
 from .config import Config
 from .utils import logging
@@ -37,7 +38,7 @@ async def giffer(url):
 
     # capture video and create gif
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True,
+        browser = await p.chromium.launch(headless=False,
                                           args=[
                                               '--no-sandbox',
                                               '--disable-extensions',
@@ -72,8 +73,12 @@ async def giffer(url):
             login_url = 'https://www.instagram.com/accounts/login/'
             page = await sign_in_to_instagram(page, login_url)
 
+            # Set the Referer header to match the previous page
+            referrer = request.headers.get('Referer')
+            if referrer:
+                await page.set_extra_http_headers({'Referer': referrer})
+
         logging.info("final session:: %s", await page.context.storage_state())
-        await page.route(url, lambda route, request: route.abort())
 
         res = await page.goto(url)
         logging.info("res:: %s", res)
@@ -261,7 +266,7 @@ async def sign_in_to_instagram(page, url):
     # Click the "Log In" button to submit the form
     await page.click('button[type="submit"]')
 
-    await random_delay()
+    await simulate_random_mouse_movements(page)
 
     # capture the storage state (cookies) after logging in
     await page.context.storage_state()
