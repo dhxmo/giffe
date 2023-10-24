@@ -68,7 +68,8 @@ async def giffer(url):
         await page.set_viewport_size({'width': width, 'height': height})
 
         if 'instagram.com' in url:
-            page = await sign_in_to_instagram(page)
+            login_url = 'https://www.instagram.com/accounts/login/'
+            page = await sign_in_to_instagram(page, login_url)
 
         await page.goto(url)
 
@@ -221,7 +222,8 @@ async def random_delay():
     await asyncio.sleep(delay)
 
 
-async def sign_in_to_instagram(page):
+async def sign_in_to_instagram(page, url):
+    await check_and_click_close_button(page, url)
     # Replace these placeholders with your actual Instagram username and password
     instagram_username = Config.insta_username
     instagram_password = Config.insta_password
